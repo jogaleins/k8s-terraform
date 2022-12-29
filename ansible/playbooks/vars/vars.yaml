@@ -1,0 +1,8 @@
+
+pod_cidr: "10.16.0.0/22"
+
+join_command_location: "join_command.out"
+
+home_dir: "/root"
+
+kubernetes_version: "1.25.2"

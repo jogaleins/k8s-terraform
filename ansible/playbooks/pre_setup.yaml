@@ -1,0 +1,13 @@
+---
+- hosts: all
+  gather_facts: false
+  become: yes
+
+
+  tasks:
+    - name: Including the variables
+      include_vars:
+        file: vars.yaml
+
+    - name: Delay before installing
+      command: sleep 1

@@ -1,0 +1,43 @@
+---
+- hosts: master
+  gather_facts: false
+
+  tasks:
+    - name: Including the variables
+      include_vars:
+        file: vars.yaml
+
+    - name: Initialize kube cluster
+      shell: |
+        kubeadm init --pod-network-cidr=10.244.0.0/16 
+        mkdir ~/.kube
+        ln -s /etc/kubernetes/admin.conf /root/.kube/config
+        kubectl apply -f https://raw.githubusercontent.com/flannel-io/flannel/master/Documentation/kube-flannel.yml
+    
+    - name: Remove taint on master nodes
+      shell: |
+        kubectl get nodes | grep -v NAME | awk '{print $1}' | while read i
+        do
+        kubectl taint nodes $i node-role.kubernetes.io/control-plane:NoSchedule-
+        done
+      ignore_errors: yes
+      register: remove_taint_command
+
+    - name: Generate join command
+      command: kubeadm token create --print-join-command
+      register: join_node_command
+ 
+    - name: Create node join command
+      local_action: copy content="{{ join_node_command.stdout_lines[0] }}" dest="/tmp/join_node_command"
+
+- hosts: worker  
+  tasks:
+    - name: Copy join script
+      copy:
+        src: /tmp/join_node_command
+        dest: /tmp/join_node_command
+        mode: 0777
+
+    - name: Join the Worker nodes to the cluster.
+      command: sh /tmp/join_node_command
+      register: joined_or_not      

@@ -1,0 +1,3 @@
+---
+- import_playbook: playbooks/pre_setup.yaml
+- import_playbook: playbooks/init_server.yaml
