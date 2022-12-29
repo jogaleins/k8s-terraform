@@ -151,17 +151,17 @@ resource "local_file" "create-inventory-file" {
   filename = "${path.cwd}/ansible/inventory.ini"
   content  = <<-EOT
   [master]
-  ${var.master-ips[0]}
+  ${var.master-ips[0]} ansible_user=root
   
   [worker]
-  ${var.worker-ips[0]}
+  ${var.worker-ips[0]} ansible_user=root
 
   [kube_agents]
   %{for ip in var.master-ips ~}
-${ip} ansible_user = root
+${ip} ansible_user=root
   %{endfor ~}
   %{for ip in var.worker-ips ~}
-${ip} ansible_user = root
+${ip} ansible_user=root
   %{endfor ~}
   EOT
 }
